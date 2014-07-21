@@ -81,7 +81,7 @@ Queue.prototype._drain = function() {
 		}
 	}
 
-	ary.splice(0, ary.length);
+	ary.length = 0;
 	this._timer = null;
 
 }
@@ -97,66 +97,66 @@ Queue.prototype._push = function(op) {
 // Attributes
 
 Queue.prototype.setAttribute = function(el, attribute, value) {
-	this._ops.push([SET_ATTRIBUTE, el, attribute, value]);
+	this._push([SET_ATTRIBUTE, el, attribute, value]);
 }
 
 Queue.prototype.removeAttribute = function(el, attribute) {
-	this._ops.push([REMOVE_ATTRIBUTE, el, attribute]);
+	this._push([REMOVE_ATTRIBUTE, el, attribute]);
 }
 
 //
 // Class
 
 Queue.prototype.addClass = function(el, classNames) {
-	this._ops.push([ADD_CLASS, el, classNames]);
+	this._push([ADD_CLASS, el, classNames]);
 }
 
 Queue.prototype.removeClass = function(el, classNames) {
-	this._ops.push([REMOVE_CLASS, el, classNames]);
+	this._push([REMOVE_CLASS, el, classNames]);
 }
 
 Queue.prototype.toggleClass = function(el, classNames) {
-	this._ops.push([TOGGLE_CLASS, el, classNames]);
+	this._push([TOGGLE_CLASS, el, classNames]);
 }
 
 //
 // Hierarchy
 
 Queue.prototype.appendChild = function(parentNode, childNode) {
-	this._ops.push([APPEND_CHILD, parentNode, childNode]);
+	this._push([APPEND_CHILD, parentNode, childNode]);
 }
 
 Queue.prototype.insertBefore = function(parentNode, newElement, referenceElement) {
-	this._ops.push([INSERT_BEFORE, parentNode, newElement, referenceElement]);
+	this._push([INSERT_BEFORE, parentNode, newElement, referenceElement]);
 }
 
 Queue.prototype.insertAfter = function(parentNode, newElement, referenceElement) {
-	this._ops.push([INSERT_AFTER, parentNode, newElement, referenceElement]);
+	this._push([INSERT_AFTER, parentNode, newElement, referenceElement]);
 }
 
 Queue.prototype.removeChild = function(parentNode, childNode) {
-	this._ops.push([REMOVE_CHILD, parentNode, childNode]);
+	this._push([REMOVE_CHILD, parentNode, childNode]);
 }
 
 Queue.prototype.removeNode = function(childNode) {
-	this._ops.push([REMOVE_NODE, childNode]);
+	this._push([REMOVE_NODE, childNode]);
 }
 
 Queue.prototype.replaceChild = function(parentNode, newChild, oldChild) {
-	this._ops.push([REPLACE_CHILD, parentNode, newChild, oldChild]);
+	this._push([REPLACE_CHILD, parentNode, newChild, oldChild]);
 }
 
 Queue.prototype.replaceNode = function(childNode, replacementNode) {
-	this._ops.push([REPLACE_NODE, childNode, replacementNode]);
+	this._push([REPLACE_NODE, childNode, replacementNode]);
 }
 
 //
 // Content
 
 Queue.prototype.setText = function(el, textContent) {
-	this._ops.push([SET_TEXT, el, textContent]);
+	this._push([SET_TEXT, el, textContent]);
 }
 
 Queue.prototype.setHTML = function(el, htmlContent) {
-	this._ops.push([SET_HTML, el, htmlContent]);
+	this._push([SET_HTML, el, htmlContent]);
 }
