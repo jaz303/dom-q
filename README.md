@@ -34,13 +34,13 @@ Create a new queue.
 
 #### `q.appendChild(parentNode, childNode)`
 
-#### `q.insertBefore(parentNode, newElement, referenceElement)`
+#### `q.insertBefore(parentNode, newNode, referenceNode)`
 
-#### `q.insertNodeBefore(referenceElement, newElement)`
+#### `q.insertNodeBefore(referenceNode, newNode)`
 
-#### `q.insertAfter(parentNode, newElement, referenceAfter)`
+#### `q.insertAfter(parentNode, newNode, referenceAfter)`
 
-#### `q.insertNodeAfter(referenceElement, newElement)`
+#### `q.insertNodeAfter(referenceNode, newNode)`
 
 #### `q.removeChild(parentNode, childNode)`
 

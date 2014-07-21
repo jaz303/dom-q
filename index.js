@@ -140,20 +140,20 @@ Queue.prototype.appendChild = function(parentNode, childNode) {
     this._push([APPEND_CHILD, parentNode, childNode]);
 }
 
-Queue.prototype.insertBefore = function(parentNode, newElement, referenceElement) {
-    this._push([INSERT_BEFORE, parentNode, newElement, referenceElement]);
+Queue.prototype.insertBefore = function(parentNode, newNode, referenceNode) {
+    this._push([INSERT_BEFORE, parentNode, newNode, referenceNode]);
 }
 
-Queue.prototype.insertNodeBefore = function(referenceElement, newElement) {
-    this._push([INSERT_NODE_BEFORE, referenceElement, newElement]);
+Queue.prototype.insertNodeBefore = function(referenceNode, newNode) {
+    this._push([INSERT_NODE_BEFORE, referenceNode, newNode]);
 }
 
-Queue.prototype.insertAfter = function(parentNode, newElement, referenceElement) {
-    this._push([INSERT_AFTER, parentNode, newElement, referenceElement]);
+Queue.prototype.insertAfter = function(parentNode, newNode, referenceNode) {
+    this._push([INSERT_AFTER, parentNode, newNode, referenceNode]);
 }
 
-Queue.prototype.insertNodeAfter = function(referenceElement, newElement) {
-    this._push([INSERT_NODE_AFTER, referenceElement, newElement]);
+Queue.prototype.insertNodeAfter = function(referenceNode, newNode) {
+    this._push([INSERT_NODE_AFTER, referenceNode, newNode]);
 }
 
 Queue.prototype.removeChild = function(parentNode, childNode) {
