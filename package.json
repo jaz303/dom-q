@@ -1,0 +1,26 @@
+{
+  "name": "dom-q",
+  "version": "0.0.0",
+  "description": "DOM batching library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jaz303/dom-q.git"
+  },
+  "keywords": [
+    "dom",
+    "batch"
+  ],
+  "author": "Jason Frame <jason@onehackoranother.com> (http://jasonframe.co.uk)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jaz303/dom-q/issues"
+  },
+  "homepage": "https://github.com/jaz303/dom-q",
+  "dependencies": {
+    "domutil": "~0.3.5"
+  }
+}
