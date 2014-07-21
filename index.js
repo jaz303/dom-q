@@ -17,13 +17,15 @@ var SET_ATTRIBUTE 		= 1,
 	TOGGLE_CLASS		= 5,
 	APPEND_CHILD		= 6,
 	INSERT_BEFORE		= 7,
-	INSERT_AFTER		= 8,
-	REMOVE_CHILD		= 9,
-	REMOVE_NODE 		= 10,
-	REPLACE_CHILD		= 11,
-	REPLACE_NODE		= 12,
-	SET_TEXT			= 13,
-	SET_HTML			= 14,
+	INSERT_NODE_BEFORE	= 8,
+	INSERT_AFTER		= 9,
+	INSERT_NODE_AFTER	= 10,
+	REMOVE_CHILD		= 11,
+	REMOVE_NODE 		= 12,
+	REPLACE_CHILD		= 13,
+	REPLACE_NODE		= 14,
+	SET_TEXT			= 15,
+	SET_HTML			= 16,
 	CALL 				= 100;
 
 function Queue() {
@@ -60,8 +62,14 @@ Queue.prototype._drain = function() {
 			case INSERT_BEFORE:
 				op[1].insertBefore(op[2], op[3]);
 				break;
+			case INSERT_NODE_BEFORE:
+				op[1].parentNode.insertBefore(op[2], op[1]);
+				break;
 			case INSERT_AFTER:
 				op[1].insertBefore(op[2], op[3].nextSibling);
+				break;
+			case INSERT_NODE_AFTER:
+				op[1].parentNode.insertBefore(op[2], op[1].nextSibling);
 				break;
 			case REMOVE_CHILD:
 				op[1].removeChild(op[2]);
@@ -136,8 +144,16 @@ Queue.prototype.insertBefore = function(parentNode, newElement, referenceElement
 	this._push([INSERT_BEFORE, parentNode, newElement, referenceElement]);
 }
 
+Queue.prototype.insertNodeBefore = function(referenceElement, newElement) {
+	this._push([INSERT_NODE_BEFORE, referenceElement, newElement]);
+}
+
 Queue.prototype.insertAfter = function(parentNode, newElement, referenceElement) {
 	this._push([INSERT_AFTER, parentNode, newElement, referenceElement]);
+}
+
+Queue.prototype.insertNodeAfter = function(referenceElement, newElement) {
+	this._push([INSERT_NODE_AFTER, referenceElement, newElement]);
 }
 
 Queue.prototype.removeChild = function(parentNode, childNode) {

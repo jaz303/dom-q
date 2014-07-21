@@ -36,7 +36,11 @@ Create a new queue.
 
 #### `q.insertBefore(parentNode, newElement, referenceElement)`
 
+#### `q.insertNodeBefore(referenceElement, newElement)`
+
 #### `q.insertAfter(parentNode, newElement, referenceAfter)`
+
+#### `q.insertNodeAfter(referenceElement, newElement)`
 
 #### `q.removeChild(parentNode, childNode)`
 
@@ -49,3 +53,9 @@ Create a new queue.
 #### `q.setText(el, textContent)`
 
 #### `q.setHTML(el, htmlContent)`
+
+## Copyright &amp; License
+
+&copy; 2014 Jason Frame [ [@jaz303](http://twitter.com/jaz303) / [jason@onehackoranother.com](mailto:jason@onehackoranother.com) ]
+
+Released under the ISC license.

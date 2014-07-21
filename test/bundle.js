@@ -18,13 +18,15 @@ var SET_ATTRIBUTE 		= 1,
 	TOGGLE_CLASS		= 5,
 	APPEND_CHILD		= 6,
 	INSERT_BEFORE		= 7,
-	INSERT_AFTER		= 8,
-	REMOVE_CHILD		= 9,
-	REMOVE_NODE 		= 10,
-	REPLACE_CHILD		= 11,
-	REPLACE_NODE		= 12,
-	SET_TEXT			= 13,
-	SET_HTML			= 14,
+	INSERT_NODE_BEFORE	= 8,
+	INSERT_AFTER		= 9,
+	INSERT_NODE_AFTER	= 10,
+	REMOVE_CHILD		= 11,
+	REMOVE_NODE 		= 12,
+	REPLACE_CHILD		= 13,
+	REPLACE_NODE		= 14,
+	SET_TEXT			= 15,
+	SET_HTML			= 16,
 	CALL 				= 100;
 
 function Queue() {
@@ -61,8 +63,14 @@ Queue.prototype._drain = function() {
 			case INSERT_BEFORE:
 				op[1].insertBefore(op[2], op[3]);
 				break;
+			case INSERT_NODE_BEFORE:
+				op[1].parentNode.insertBefore(op[2], op[1]);
+				break;
 			case INSERT_AFTER:
 				op[1].insertBefore(op[2], op[3].nextSibling);
+				break;
+			case INSERT_NODE_AFTER:
+				op[1].parentNode.insertBefore(op[2], op[1].nextSibling);
 				break;
 			case REMOVE_CHILD:
 				op[1].removeChild(op[2]);
@@ -137,8 +145,16 @@ Queue.prototype.insertBefore = function(parentNode, newElement, referenceElement
 	this._push([INSERT_BEFORE, parentNode, newElement, referenceElement]);
 }
 
+Queue.prototype.insertNodeBefore = function(referenceElement, newElement) {
+	this._push([INSERT_NODE_BEFORE, referenceElement, newElement]);
+}
+
 Queue.prototype.insertAfter = function(parentNode, newElement, referenceElement) {
 	this._push([INSERT_AFTER, parentNode, newElement, referenceElement]);
+}
+
+Queue.prototype.insertNodeAfter = function(referenceElement, newElement) {
+	this._push([INSERT_NODE_AFTER, referenceElement, newElement]);
 }
 
 Queue.prototype.removeChild = function(parentNode, childNode) {
@@ -1802,7 +1818,111 @@ test("toggle class", function(assert, q, el) {
 	});
 });
 
+test("append child", function(assert, q, el) {
+	var child = document.createElement('div');
+	q.appendChild(el, child);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 1);
+		assert.ok(el.childNodes[0] === child);
+		assert.end();
+	});
+});
 
+test("insert before", function(assert, q, el) {
+	var ref = document.createElement('div');
+	var other = document.createElement('div');
+	el.appendChild(ref);
+	q.insertBefore(el, other, ref);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 2);
+		assert.ok(ref.previousSibling === other);
+		assert.end();
+	});
+});
+
+test("insert node before", function(assert, q, el) {
+	var ref = document.createElement('div');
+	var other = document.createElement('div');
+	el.appendChild(ref);
+	q.insertNodeBefore(ref, other);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 2);
+		assert.ok(ref.previousSibling === other);
+		assert.end();
+	});
+});
+
+test("insert after", function(assert, q, el) {
+	var ref = document.createElement('div');
+	var other = document.createElement('div');
+	el.appendChild(ref);
+	q.insertAfter(el, other, ref);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 2);
+		assert.ok(ref.nextSibling === other);
+		assert.end();
+	});
+});
+
+test("insert after", function(assert, q, el) {
+	var ref = document.createElement('div');
+	var other = document.createElement('div');
+	el.appendChild(ref);
+	q.insertNodeAfter(ref, other);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 2);
+		assert.ok(ref.nextSibling === other);
+		assert.end();
+	});
+});
+
+test("remove child", function(assert, q, el) {
+	var child = document.createElement('div');
+	el.appendChild(child);
+	q.removeChild(el, child);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 0);
+		assert.ok(!child.parentNode);
+		assert.end();
+	});
+});
+
+test("remove node", function(assert, q, el) {
+	var child = document.createElement('div');
+	el.appendChild(child);
+	q.removeNode(child);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 0);
+		assert.ok(!child.parentNode);
+		assert.end();
+	});
+});
+
+test("replace child", function(assert, q, el) {
+	var child1 = document.createElement('div');
+	var child2 = document.createElement('div');
+	el.appendChild(child1);
+	q.replaceChild(el, child2, child1);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 1);
+		assert.ok(el.childNodes[0] === child2);
+		assert.ok(!child1.parentNode);
+		assert.end();
+	});
+});
+
+test("replace node", function(assert, q, el) {
+	var child1 = document.createElement('div');
+	var child2 = document.createElement('div');
+	el.appendChild(child1);
+	q.replaceNode(child1, child2);
+	q.call(function() {
+		assert.ok(el.childNodes.length === 1);
+		assert.ok(el.childNodes[0] === child2);
+		assert.ok(!child1.parentNode);
+		assert.end();
+	});
+});
 
 test("set text", function(assert, q, el) {
 	q.setText(el, "everything is awesome");
