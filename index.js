@@ -23,7 +23,8 @@ var SET_ATTRIBUTE 		= 1,
 	REPLACE_CHILD		= 11,
 	REPLACE_NODE		= 12,
 	SET_TEXT			= 13,
-	SET_HTML			= 14;
+	SET_HTML			= 14,
+	CALL 				= 100;
 
 function Queue() {
 	this._ops = [];
@@ -36,47 +37,52 @@ Queue.prototype._drain = function() {
 	var ary = this._ops;
 
 	for (var i = 0, len = ary.length; i < len; ++i) {
-		switch (ary[i]) {
+		var op = ary[i];
+		switch (op[0]) {
 			case SET_ATTRIBUTE:
-				ary[1].setAttribute(ary[2], ary[3]);
+				op[1].setAttribute(op[2], op[3]);
 				break;
 			case REMOVE_ATTRIBUTE:
-				ary[1].removeAttribute(ary[2]);
+				op[1].removeAttribute(op[2]);
 				break;
 			case ADD_CLASS:
-				du.addClass(ary[1], ary[2]);
+				du.addClass(op[1], op[2]);
 				break;
 			case REMOVE_CLASS:
-				du.removeClass(ary[1], ary[2]);
+				du.removeClass(op[1], op[2]);
 				break;
 			case TOGGLE_CLASS:
-				du.toggleClass(ary[1], ary[2]);
+				du.toggleClass(op[1], op[2]);
 				break;
 			case APPEND_CHILD:
-				ary[1].appendChild(ary[2]);
+				op[1].appendChild(op[2]);
 				break;
 			case INSERT_BEFORE:
-				ary[1].insertBefore(ary[2], ary[3]);
+				op[1].insertBefore(op[2], op[3]);
 				break;
 			case INSERT_AFTER:
+				op[1].insertBefore(op[2], op[3].nextSibling);
 				break;
 			case REMOVE_CHILD:
-				ary[1].removeChild(ary[2]);
+				op[1].removeChild(op[2]);
 				break;
 			case REMOVE_NODE:
-				ary[1].parentNode.removeChild(ary[1]);
+				op[1].parentNode.removeChild(op[1]);
 				break;
 			case REPLACE_CHILD:
-				ary[1].replaceChild(ary[2], ary[3]);
+				op[1].replaceChild(op[2], op[3]);
 				break;
 			case REPLACE_NODE:
-				ary[1].parentNode.replaceChild(ary[2], ary[1]);
+				op[1].parentNode.replaceChild(op[2], op[1]);
 				break;
 			case SET_TEXT:
-				du.setText(ary[1], ary[2]);
+				du.setText(op[1], op[2]);
 				break;
 			case SET_HTML:
-				ary[1].innerHTML = ary[2];
+				op[1].innerHTML = op[2];
+				break;
+			case CALL:
+				op[1]();
 				break;
 		}
 	}
@@ -159,4 +165,11 @@ Queue.prototype.setText = function(el, textContent) {
 
 Queue.prototype.setHTML = function(el, htmlContent) {
 	this._push([SET_HTML, el, htmlContent]);
+}
+
+//
+// Call
+
+Queue.prototype.call = function(fn) {
+	this._push([CALL, fn]);
 }
