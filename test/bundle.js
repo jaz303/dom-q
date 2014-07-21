@@ -2,193 +2,193 @@
 var du = require('domutil');
 
 module.exports = function() {
-	return new Queue();
+    return new Queue();
 }
 
 var raf = window.requestAnimationFrame
-			|| window.webkitRequestAnimationFrame
-			|| window.mozRequestAnimationFrame;
+            || window.webkitRequestAnimationFrame
+            || window.mozRequestAnimationFrame;
 
 raf = raf ? raf.bind(window) : function(fn) { return setTimeout(fn, 16); };
 
-var SET_ATTRIBUTE 		= 1,
-	REMOVE_ATTRIBUTE	= 2,
-	ADD_CLASS			= 3,
-	REMOVE_CLASS		= 4,
-	TOGGLE_CLASS		= 5,
-	APPEND_CHILD		= 6,
-	INSERT_BEFORE		= 7,
-	INSERT_NODE_BEFORE	= 8,
-	INSERT_AFTER		= 9,
-	INSERT_NODE_AFTER	= 10,
-	REMOVE_CHILD		= 11,
-	REMOVE_NODE 		= 12,
-	REPLACE_CHILD		= 13,
-	REPLACE_NODE		= 14,
-	SET_TEXT			= 15,
-	SET_HTML			= 16,
-	CALL 				= 100;
+var SET_ATTRIBUTE       = 1,
+    REMOVE_ATTRIBUTE    = 2,
+    ADD_CLASS           = 3,
+    REMOVE_CLASS        = 4,
+    TOGGLE_CLASS        = 5,
+    APPEND_CHILD        = 6,
+    INSERT_BEFORE       = 7,
+    INSERT_NODE_BEFORE  = 8,
+    INSERT_AFTER        = 9,
+    INSERT_NODE_AFTER   = 10,
+    REMOVE_CHILD        = 11,
+    REMOVE_NODE         = 12,
+    REPLACE_CHILD       = 13,
+    REPLACE_NODE        = 14,
+    SET_TEXT            = 15,
+    SET_HTML            = 16,
+    CALL                = 100;
 
 function Queue() {
-	this._ops = [];
-	this._timer = null;
-	this._drainMethod = this._drain.bind(this);
+    this._ops = [];
+    this._timer = null;
+    this._drainMethod = this._drain.bind(this);
 }
 
 Queue.prototype._drain = function() {
 
-	var ary = this._ops;
+    var ary = this._ops;
 
-	for (var i = 0, len = ary.length; i < len; ++i) {
-		var op = ary[i];
-		switch (op[0]) {
-			case SET_ATTRIBUTE:
-				op[1].setAttribute(op[2], op[3]);
-				break;
-			case REMOVE_ATTRIBUTE:
-				op[1].removeAttribute(op[2]);
-				break;
-			case ADD_CLASS:
-				du.addClass(op[1], op[2]);
-				break;
-			case REMOVE_CLASS:
-				du.removeClass(op[1], op[2]);
-				break;
-			case TOGGLE_CLASS:
-				du.toggleClass(op[1], op[2]);
-				break;
-			case APPEND_CHILD:
-				op[1].appendChild(op[2]);
-				break;
-			case INSERT_BEFORE:
-				op[1].insertBefore(op[2], op[3]);
-				break;
-			case INSERT_NODE_BEFORE:
-				op[1].parentNode.insertBefore(op[2], op[1]);
-				break;
-			case INSERT_AFTER:
-				op[1].insertBefore(op[2], op[3].nextSibling);
-				break;
-			case INSERT_NODE_AFTER:
-				op[1].parentNode.insertBefore(op[2], op[1].nextSibling);
-				break;
-			case REMOVE_CHILD:
-				op[1].removeChild(op[2]);
-				break;
-			case REMOVE_NODE:
-				op[1].parentNode.removeChild(op[1]);
-				break;
-			case REPLACE_CHILD:
-				op[1].replaceChild(op[2], op[3]);
-				break;
-			case REPLACE_NODE:
-				op[1].parentNode.replaceChild(op[2], op[1]);
-				break;
-			case SET_TEXT:
-				du.setText(op[1], op[2]);
-				break;
-			case SET_HTML:
-				op[1].innerHTML = op[2];
-				break;
-			case CALL:
-				op[1]();
-				break;
-		}
-	}
+    for (var i = 0, len = ary.length; i < len; ++i) {
+        var op = ary[i];
+        switch (op[0]) {
+            case SET_ATTRIBUTE:
+                op[1].setAttribute(op[2], op[3]);
+                break;
+            case REMOVE_ATTRIBUTE:
+                op[1].removeAttribute(op[2]);
+                break;
+            case ADD_CLASS:
+                du.addClass(op[1], op[2]);
+                break;
+            case REMOVE_CLASS:
+                du.removeClass(op[1], op[2]);
+                break;
+            case TOGGLE_CLASS:
+                du.toggleClass(op[1], op[2]);
+                break;
+            case APPEND_CHILD:
+                op[1].appendChild(op[2]);
+                break;
+            case INSERT_BEFORE:
+                op[1].insertBefore(op[2], op[3]);
+                break;
+            case INSERT_NODE_BEFORE:
+                op[1].parentNode.insertBefore(op[2], op[1]);
+                break;
+            case INSERT_AFTER:
+                op[1].insertBefore(op[2], op[3].nextSibling);
+                break;
+            case INSERT_NODE_AFTER:
+                op[1].parentNode.insertBefore(op[2], op[1].nextSibling);
+                break;
+            case REMOVE_CHILD:
+                op[1].removeChild(op[2]);
+                break;
+            case REMOVE_NODE:
+                op[1].parentNode.removeChild(op[1]);
+                break;
+            case REPLACE_CHILD:
+                op[1].replaceChild(op[2], op[3]);
+                break;
+            case REPLACE_NODE:
+                op[1].parentNode.replaceChild(op[2], op[1]);
+                break;
+            case SET_TEXT:
+                du.setText(op[1], op[2]);
+                break;
+            case SET_HTML:
+                op[1].innerHTML = op[2];
+                break;
+            case CALL:
+                op[1]();
+                break;
+        }
+    }
 
-	ary.length = 0;
-	this._timer = null;
+    ary.length = 0;
+    this._timer = null;
 
 }
 
 Queue.prototype._push = function(op) {
-	this._ops.push(op);
-	if (!this._timer) {
-		this._timer = raf(this._drainMethod);
-	}
+    this._ops.push(op);
+    if (!this._timer) {
+        this._timer = raf(this._drainMethod);
+    }
 }
 
 //
 // Attributes
 
 Queue.prototype.setAttribute = function(el, attribute, value) {
-	this._push([SET_ATTRIBUTE, el, attribute, value]);
+    this._push([SET_ATTRIBUTE, el, attribute, value]);
 }
 
 Queue.prototype.removeAttribute = function(el, attribute) {
-	this._push([REMOVE_ATTRIBUTE, el, attribute]);
+    this._push([REMOVE_ATTRIBUTE, el, attribute]);
 }
 
 //
 // Class
 
 Queue.prototype.addClass = function(el, classNames) {
-	this._push([ADD_CLASS, el, classNames]);
+    this._push([ADD_CLASS, el, classNames]);
 }
 
 Queue.prototype.removeClass = function(el, classNames) {
-	this._push([REMOVE_CLASS, el, classNames]);
+    this._push([REMOVE_CLASS, el, classNames]);
 }
 
 Queue.prototype.toggleClass = function(el, classNames) {
-	this._push([TOGGLE_CLASS, el, classNames]);
+    this._push([TOGGLE_CLASS, el, classNames]);
 }
 
 //
 // Hierarchy
 
 Queue.prototype.appendChild = function(parentNode, childNode) {
-	this._push([APPEND_CHILD, parentNode, childNode]);
+    this._push([APPEND_CHILD, parentNode, childNode]);
 }
 
 Queue.prototype.insertBefore = function(parentNode, newElement, referenceElement) {
-	this._push([INSERT_BEFORE, parentNode, newElement, referenceElement]);
+    this._push([INSERT_BEFORE, parentNode, newElement, referenceElement]);
 }
 
 Queue.prototype.insertNodeBefore = function(referenceElement, newElement) {
-	this._push([INSERT_NODE_BEFORE, referenceElement, newElement]);
+    this._push([INSERT_NODE_BEFORE, referenceElement, newElement]);
 }
 
 Queue.prototype.insertAfter = function(parentNode, newElement, referenceElement) {
-	this._push([INSERT_AFTER, parentNode, newElement, referenceElement]);
+    this._push([INSERT_AFTER, parentNode, newElement, referenceElement]);
 }
 
 Queue.prototype.insertNodeAfter = function(referenceElement, newElement) {
-	this._push([INSERT_NODE_AFTER, referenceElement, newElement]);
+    this._push([INSERT_NODE_AFTER, referenceElement, newElement]);
 }
 
 Queue.prototype.removeChild = function(parentNode, childNode) {
-	this._push([REMOVE_CHILD, parentNode, childNode]);
+    this._push([REMOVE_CHILD, parentNode, childNode]);
 }
 
 Queue.prototype.removeNode = function(childNode) {
-	this._push([REMOVE_NODE, childNode]);
+    this._push([REMOVE_NODE, childNode]);
 }
 
 Queue.prototype.replaceChild = function(parentNode, newChild, oldChild) {
-	this._push([REPLACE_CHILD, parentNode, newChild, oldChild]);
+    this._push([REPLACE_CHILD, parentNode, newChild, oldChild]);
 }
 
 Queue.prototype.replaceNode = function(childNode, replacementNode) {
-	this._push([REPLACE_NODE, childNode, replacementNode]);
+    this._push([REPLACE_NODE, childNode, replacementNode]);
 }
 
 //
 // Content
 
 Queue.prototype.setText = function(el, textContent) {
-	this._push([SET_TEXT, el, textContent]);
+    this._push([SET_TEXT, el, textContent]);
 }
 
 Queue.prototype.setHTML = function(el, htmlContent) {
-	this._push([SET_HTML, el, htmlContent]);
+    this._push([SET_HTML, el, htmlContent]);
 }
 
 //
 // Call
 
 Queue.prototype.call = function(fn) {
-	this._push([CALL, fn]);
+    this._push([CALL, fn]);
 }
 },{"domutil":9}],2:[function(require,module,exports){
 if (typeof window.DOMTokenList === 'undefined') {
@@ -1775,184 +1775,184 @@ function through (write, end, opts) {
 var test = require('./test');
 
 test("set attribute", function(assert, q, el) {
-	q.setAttribute(el, "foo", "bar");
-	q.call(function() {
-		assert.equal(el.getAttribute("foo"), "bar");
-		assert.end();
-	});
+    q.setAttribute(el, "foo", "bar");
+    q.call(function() {
+        assert.equal(el.getAttribute("foo"), "bar");
+        assert.end();
+    });
 });
 
 test("remove attribute", function(assert, q, el) {
-	el.setAttribute('foo', 'baz');
-	q.removeAttribute(el, 'foo');
-	q.call(function() {
-		assert.ok(el.getAttribute("foo") === null);
-		assert.end();
-	});
+    el.setAttribute('foo', 'baz');
+    q.removeAttribute(el, 'foo');
+    q.call(function() {
+        assert.ok(el.getAttribute("foo") === null);
+        assert.end();
+    });
 });
 
 test("add class", function(assert, q, el) {
-	el.className = 'leopard'
-	q.addClass(el, 'bleem');
-	q.call(function() {
-		assert.ok(el.className === 'leopard bleem');
-		assert.end();
-	});
+    el.className = 'leopard'
+    q.addClass(el, 'bleem');
+    q.call(function() {
+        assert.ok(el.className === 'leopard bleem');
+        assert.end();
+    });
 });
 
 test("remove class", function(assert, q, el) {
-	el.className = 'dorothy tinman';
-	q.removeClass(el, 'dorothy');
-	q.call(function() {
-		assert.ok(el.className === 'tinman');
-		assert.end();
-	});
+    el.className = 'dorothy tinman';
+    q.removeClass(el, 'dorothy');
+    q.call(function() {
+        assert.ok(el.className === 'tinman');
+        assert.end();
+    });
 });
 
 test("toggle class", function(assert, q, el) {
-	el.className = 'sky';
-	q.toggleClass(el, 'sky fairy');
-	q.call(function() {
-		assert.ok(el.className === 'fairy');
-		assert.end();
-	});
+    el.className = 'sky';
+    q.toggleClass(el, 'sky fairy');
+    q.call(function() {
+        assert.ok(el.className === 'fairy');
+        assert.end();
+    });
 });
 
 test("append child", function(assert, q, el) {
-	var child = document.createElement('div');
-	q.appendChild(el, child);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 1);
-		assert.ok(el.childNodes[0] === child);
-		assert.end();
-	});
+    var child = document.createElement('div');
+    q.appendChild(el, child);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 1);
+        assert.ok(el.childNodes[0] === child);
+        assert.end();
+    });
 });
 
 test("insert before", function(assert, q, el) {
-	var ref = document.createElement('div');
-	var other = document.createElement('div');
-	el.appendChild(ref);
-	q.insertBefore(el, other, ref);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 2);
-		assert.ok(ref.previousSibling === other);
-		assert.end();
-	});
+    var ref = document.createElement('div');
+    var other = document.createElement('div');
+    el.appendChild(ref);
+    q.insertBefore(el, other, ref);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 2);
+        assert.ok(ref.previousSibling === other);
+        assert.end();
+    });
 });
 
 test("insert node before", function(assert, q, el) {
-	var ref = document.createElement('div');
-	var other = document.createElement('div');
-	el.appendChild(ref);
-	q.insertNodeBefore(ref, other);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 2);
-		assert.ok(ref.previousSibling === other);
-		assert.end();
-	});
+    var ref = document.createElement('div');
+    var other = document.createElement('div');
+    el.appendChild(ref);
+    q.insertNodeBefore(ref, other);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 2);
+        assert.ok(ref.previousSibling === other);
+        assert.end();
+    });
 });
 
 test("insert after", function(assert, q, el) {
-	var ref = document.createElement('div');
-	var other = document.createElement('div');
-	el.appendChild(ref);
-	q.insertAfter(el, other, ref);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 2);
-		assert.ok(ref.nextSibling === other);
-		assert.end();
-	});
+    var ref = document.createElement('div');
+    var other = document.createElement('div');
+    el.appendChild(ref);
+    q.insertAfter(el, other, ref);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 2);
+        assert.ok(ref.nextSibling === other);
+        assert.end();
+    });
 });
 
 test("insert after", function(assert, q, el) {
-	var ref = document.createElement('div');
-	var other = document.createElement('div');
-	el.appendChild(ref);
-	q.insertNodeAfter(ref, other);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 2);
-		assert.ok(ref.nextSibling === other);
-		assert.end();
-	});
+    var ref = document.createElement('div');
+    var other = document.createElement('div');
+    el.appendChild(ref);
+    q.insertNodeAfter(ref, other);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 2);
+        assert.ok(ref.nextSibling === other);
+        assert.end();
+    });
 });
 
 test("remove child", function(assert, q, el) {
-	var child = document.createElement('div');
-	el.appendChild(child);
-	q.removeChild(el, child);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 0);
-		assert.ok(!child.parentNode);
-		assert.end();
-	});
+    var child = document.createElement('div');
+    el.appendChild(child);
+    q.removeChild(el, child);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 0);
+        assert.ok(!child.parentNode);
+        assert.end();
+    });
 });
 
 test("remove node", function(assert, q, el) {
-	var child = document.createElement('div');
-	el.appendChild(child);
-	q.removeNode(child);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 0);
-		assert.ok(!child.parentNode);
-		assert.end();
-	});
+    var child = document.createElement('div');
+    el.appendChild(child);
+    q.removeNode(child);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 0);
+        assert.ok(!child.parentNode);
+        assert.end();
+    });
 });
 
 test("replace child", function(assert, q, el) {
-	var child1 = document.createElement('div');
-	var child2 = document.createElement('div');
-	el.appendChild(child1);
-	q.replaceChild(el, child2, child1);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 1);
-		assert.ok(el.childNodes[0] === child2);
-		assert.ok(!child1.parentNode);
-		assert.end();
-	});
+    var child1 = document.createElement('div');
+    var child2 = document.createElement('div');
+    el.appendChild(child1);
+    q.replaceChild(el, child2, child1);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 1);
+        assert.ok(el.childNodes[0] === child2);
+        assert.ok(!child1.parentNode);
+        assert.end();
+    });
 });
 
 test("replace node", function(assert, q, el) {
-	var child1 = document.createElement('div');
-	var child2 = document.createElement('div');
-	el.appendChild(child1);
-	q.replaceNode(child1, child2);
-	q.call(function() {
-		assert.ok(el.childNodes.length === 1);
-		assert.ok(el.childNodes[0] === child2);
-		assert.ok(!child1.parentNode);
-		assert.end();
-	});
+    var child1 = document.createElement('div');
+    var child2 = document.createElement('div');
+    el.appendChild(child1);
+    q.replaceNode(child1, child2);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 1);
+        assert.ok(el.childNodes[0] === child2);
+        assert.ok(!child1.parentNode);
+        assert.end();
+    });
 });
 
 test("set text", function(assert, q, el) {
-	q.setText(el, "everything is awesome");
-	q.call(function() {
-		assert.ok(el.textContent === "everything is awesome");
-		assert.end();
-	});
+    q.setText(el, "everything is awesome");
+    q.call(function() {
+        assert.ok(el.textContent === "everything is awesome");
+        assert.end();
+    });
 });
 
 test("set HTML", function(assert, q, el) {
-	q.setHTML(el, "<b>HELLO</b>");
-	q.call(function() {
-		assert.ok(el.innerHTML === "<b>HELLO</b>");
-		assert.end();
-	});
+    q.setHTML(el, "<b>HELLO</b>");
+    q.call(function() {
+        assert.ok(el.innerHTML === "<b>HELLO</b>");
+        assert.end();
+    });
 });
 },{"./test":24}],23:[function(require,module,exports){
 window.init = function() {
-	require('./all');
+    require('./all');
 }
 },{"./all":22}],24:[function(require,module,exports){
 var test = require('tape');
 var domq = require('..');
 
 module.exports = function(name, cb) {
-	test(name, function(assert) {
-		var el = document.createElement('div');
-		var q = domq();
-		cb(assert, q, el);
-	});
+    test(name, function(assert) {
+        var el = document.createElement('div');
+        var q = domq();
+        cb(assert, q, el);
+    });
 }
 },{"..":1,"tape":10}],25:[function(require,module,exports){
 
