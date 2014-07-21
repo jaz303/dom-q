@@ -1,3 +1,3 @@
 window.init = function() {
-	require('./all');
+    require('./all');
 }

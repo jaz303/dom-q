@@ -6,11 +6,11 @@
 
 Get it:
 
-	npm install --save dom-q
+    npm install --save dom-q
 
 Require it:
 
-	var domq = require('dom-q');
+    var domq = require('dom-q');
 
 ## UMD
 
