@@ -20,11 +20,17 @@ Copy and paste either `build/dom-q.js` or `build/dom-q.min.js` into your project
 
 ## API
 
-#### `var q = domq()`
+#### `var q = domq.batch()`
 
-Create a new queue.
+Create a new queue that batches executes DOM operations using `requestAnimationFrame()`.
 
-Once you've made a queue the following operations are available:
+See below for the available queue operations.
+
+#### `var q = domq.immediate()`
+
+Create a new "queue" that exposes the same batching API as `domq.batch()`, but instead applies operations synchronously.
+
+See below for the available queue operations.
 
 #### `q.setAttribute(el, attribute, value)`
 
