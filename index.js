@@ -1,8 +1,16 @@
 var du = require('domutil');
 var rafq = require('raf-q');
 
-exports.batch = function() { return new Queue(rafq(apply)); }
-exports.immediate = function() { return new Queue({push: apply}); }
+exports.batch = function() {
+    return new Queue(rafq(apply));
+}
+
+exports.immediate = function() {
+    return new Queue({
+        push: apply,
+        after: function(fn) { fn(); }
+    });
+}
 
 function Queue(impl) {
     this._q = impl;
