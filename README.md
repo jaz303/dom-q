@@ -82,6 +82,10 @@ Convenience method; equivalent to `q.replaceChild(childNode.parentNode, replacem
 
 Insert an arbitrary function into the queue; will be called in the course of normal queue processing.
 
+#### `q.after(fn)`
+
+Insert an arbitrary function into the queue; will be called after the next batch of operations has been completely processed.
+
 ## Copyright &amp; License
 
 &copy; 2014 Jason Frame [ [@jaz303](http://twitter.com/jaz303) / [jason@onehackoranother.com](mailto:jason@onehackoranother.com) ]
