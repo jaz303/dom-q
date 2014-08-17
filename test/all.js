@@ -165,3 +165,16 @@ test("set HTML", function(assert, q, el) {
         assert.end();
     });
 });
+
+test("after", function(assert, q, el) {
+
+    q.after(function() {
+        assert.equal(el.childNodes.length, 3);
+        assert.end();
+    });
+
+    q.appendChild(el, document.createElement('div'));
+    q.appendChild(el, document.createElement('div'));
+    q.appendChild(el, document.createElement('div'));
+
+});

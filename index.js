@@ -164,3 +164,10 @@ Queue.prototype.setHTML = function(el, htmlContent) {
 Queue.prototype.call = function(fn) {
     this._q.push([CALL, fn]);
 }
+
+//
+// After
+
+Queue.prototype.after = function(fn) {
+    this._q.after(fn);
+}
