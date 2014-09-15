@@ -44,6 +44,8 @@ See below for the available queue operations.
 
 #### `q.style(el, attributes)`
 
+#### `q.removeStyle(el, attribute)`
+
 ### Classes
 
 #### `q.addClass(el, classes)`
