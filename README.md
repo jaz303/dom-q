@@ -90,9 +90,9 @@ Convenience method; equivalent to `q.removeChild(childNode.parentNode, childNode
 
 #### `q.append(el, content)`
 
-Append `content` to `el`. Content can be a DOM node, `DocumentFragment`, HTML/text strings, or an array of the above.
+Append `content` to `el`. Content can be a DOM node, `DocumentFragment`, HTML/text string, or an array of the above.
 
-#### `q.clear(el, htmlContent)`
+#### `q.clear(el)`
 
 Remove all child nodes of `el`.
 
@@ -112,7 +112,7 @@ Insert an arbitrary function into the queue; will be called in the course of nor
 
 #### `q.afterFlush(fn)`
 
-Insert an arbitrary function into the queue; will be called after the next batch of operations has been completely processed.
+Insert an arbitrary function into the queue; will be called after the next batch of operations has been completely processed. For immediate queues invocation is immediate.
 
 ## Copyright &amp; License
 
