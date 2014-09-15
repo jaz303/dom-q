@@ -1,6 +1,6 @@
 BUILD_DIR	:= build
 PRODUCT		:= dom-q
-SRC 		:= index.js
+SRC 		:= index.js async.js sync.js
 
 UMD			:= $(BUILD_DIR)/$(PRODUCT).js
 UMD_MIN		:= $(BUILD_DIR)/$(PRODUCT).min.js
@@ -19,6 +19,12 @@ clean:
 
 build:
 	mkdir -p $(BUILD_DIR)
+
+sync.js: meta/*.js
+	node meta/gen_sync.js > $@
+
+async.js: meta/*.js
+	node meta/gen_async.js > $@
 
 $(UMD): $(SRC) $(BUILD_DIR)
 	browserify -s $(UMD_EXPORT) -o $@ $<

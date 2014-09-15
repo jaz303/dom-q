@@ -1,48 +1,66 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.domq=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var du = require('domutil');
+var style = du.style;
+var addClass = du.addClass;
+var removeClass = du.removeClass;
+var toggleClass = du.toggleClass;
+var removeMatchingClasses = du.removeMatchingClasses;
+var append = du.append;
+var clear = du.clear;
+var content = du.content;
+var text = du.text;
+
 var rafq = require('raf-q');
 
-exports.batch = function() { return new Queue(rafq(apply)); }
-exports.immediate = function() { return new Queue({push: apply}); }
-
-function Queue(impl) {
-    this._q = impl;
+module.exports = Queue;
+function Queue() {
+    this._q = rafq(apply);
 }
 
-var SET_ATTRIBUTE       = 1,
-    REMOVE_ATTRIBUTE    = 2,
-    ADD_CLASS           = 3,
-    REMOVE_CLASS        = 4,
-    TOGGLE_CLASS        = 5,
-    APPEND_CHILD        = 6,
-    INSERT_BEFORE       = 7,
-    INSERT_NODE_BEFORE  = 8,
-    INSERT_AFTER        = 9,
-    INSERT_NODE_AFTER   = 10,
-    REMOVE_CHILD        = 11,
-    REMOVE_NODE         = 12,
-    REPLACE_CHILD       = 13,
-    REPLACE_NODE        = 14,
-    SET_TEXT            = 15,
-    SET_HTML            = 16,
-    CALL                = 100;
+var SET_ATTRIBUTE = 1;
+var REMOVE_ATTRIBUTE = 2;
+var SET_STYLE = 3;
+var ADD_CLASS = 4;
+var REMOVE_CLASS = 5;
+var TOGGLE_CLASS = 6;
+var REMOVE_MATCHING_CLASSES = 7;
+var APPEND_CHILD = 8;
+var INSERT_BEFORE = 9;
+var INSERT_AFTER = 10;
+var REMOVE_CHILD = 11;
+var REPLACE_CHILD = 12;
+var BEFORE = 13;
+var AFTER = 14;
+var REPLACE = 15;
+var REMOVE = 16;
+var APPEND = 17;
+var CLEAR = 18;
+var CONTENT = 19;
+var SET_TEXT = 20;
+var CALL = 21;
 
 function apply(op) {
-    switch (op[0]) {
+    switch(op[0]) {
         case SET_ATTRIBUTE:
             op[1].setAttribute(op[2], op[3]);
             break;
         case REMOVE_ATTRIBUTE:
             op[1].removeAttribute(op[2]);
             break;
+        case SET_STYLE:
+            style(op[1], op[2], op[3]);
+            break;
         case ADD_CLASS:
-            du.addClass(op[1], op[2]);
+            addClass(op[1], op[2]);
             break;
         case REMOVE_CLASS:
-            du.removeClass(op[1], op[2]);
+            removeClass(op[1], op[2]);
             break;
         case TOGGLE_CLASS:
-            du.toggleClass(op[1], op[2]);
+            toggleClass(op[1], op[2]);
+            break;
+        case REMOVE_MATCHING_CLASSES:
+            removeMatchingClasses(op[1], op[2]);
             break;
         case APPEND_CHILD:
             op[1].appendChild(op[2]);
@@ -50,32 +68,38 @@ function apply(op) {
         case INSERT_BEFORE:
             op[1].insertBefore(op[2], op[3]);
             break;
-        case INSERT_NODE_BEFORE:
-            op[1].parentNode.insertBefore(op[2], op[1]);
-            break;
         case INSERT_AFTER:
             op[1].insertBefore(op[2], op[3].nextSibling);
-            break;
-        case INSERT_NODE_AFTER:
-            op[1].parentNode.insertBefore(op[2], op[1].nextSibling);
             break;
         case REMOVE_CHILD:
             op[1].removeChild(op[2]);
             break;
-        case REMOVE_NODE:
-            op[1].parentNode.removeChild(op[1]);
-            break;
         case REPLACE_CHILD:
             op[1].replaceChild(op[2], op[3]);
             break;
-        case REPLACE_NODE:
+        case BEFORE:
+            op[1].parentNode.insertBefore(op[2], op[1]);
+            break;
+        case AFTER:
+            op[1].parentNode.insertBefore(op[2], op[1].nextSibling);
+            break;
+        case REPLACE:
             op[1].parentNode.replaceChild(op[2], op[1]);
             break;
-        case SET_TEXT:
-            du.setText(op[1], op[2]);
+        case REMOVE:
+            op[1].parentNode.removeChild(op[1]);
             break;
-        case SET_HTML:
-            op[1].innerHTML = op[2];
+        case APPEND:
+            append(op[1], op[2]);
+            break;
+        case CLEAR:
+            clear(op[1]);
+            break;
+        case CONTENT:
+            content(op[1], op[2]);
+            break;
+        case SET_TEXT:
+            text(op[1], op[2]);
             break;
         case CALL:
             op[1]();
@@ -83,96 +107,104 @@ function apply(op) {
     }
 }
 
-//
-// Attributes
-
-Queue.prototype.setAttribute = function(el, attribute, value) {
-    this._q.push([SET_ATTRIBUTE, el, attribute, value]);
+Queue.prototype.setAttribute = function(el, attr, value) {
+    this._q.push([SET_ATTRIBUTE, el, attr, value]);
 }
 
-Queue.prototype.removeAttribute = function(el, attribute) {
-    this._q.push([REMOVE_ATTRIBUTE, el, attribute]);
+Queue.prototype.removeAttribute = function(el, attr) {
+    this._q.push([REMOVE_ATTRIBUTE, el, attr]);
 }
 
-//
-// Class
-
-Queue.prototype.addClass = function(el, classNames) {
-    this._q.push([ADD_CLASS, el, classNames]);
+Queue.prototype.style = function(el, attribute, value) {
+    this._q.push([SET_STYLE, el, attribute, value]);
 }
 
-Queue.prototype.removeClass = function(el, classNames) {
-    this._q.push([REMOVE_CLASS, el, classNames]);
+Queue.prototype.addClass = function(el, classes) {
+    this._q.push([ADD_CLASS, el, classes]);
 }
 
-Queue.prototype.toggleClass = function(el, classNames) {
-    this._q.push([TOGGLE_CLASS, el, classNames]);
+Queue.prototype.removeClass = function(el, classes) {
+    this._q.push([REMOVE_CLASS, el, classes]);
 }
 
-//
-// Hierarchy
-
-Queue.prototype.appendChild = function(parentNode, childNode) {
-    this._q.push([APPEND_CHILD, parentNode, childNode]);
+Queue.prototype.toggleClass = function(el, classes) {
+    this._q.push([TOGGLE_CLASS, el, classes]);
 }
 
-Queue.prototype.insertBefore = function(parentNode, newNode, referenceNode) {
-    this._q.push([INSERT_BEFORE, parentNode, newNode, referenceNode]);
+Queue.prototype.removeMatchingClasses = function(el, regexp) {
+    this._q.push([REMOVE_MATCHING_CLASSES, el, regexp]);
 }
 
-Queue.prototype.insertNodeBefore = function(referenceNode, newNode) {
-    this._q.push([INSERT_NODE_BEFORE, referenceNode, newNode]);
+Queue.prototype.appendChild = function(el, newChild) {
+    this._q.push([APPEND_CHILD, el, newChild]);
 }
 
-Queue.prototype.insertAfter = function(parentNode, newNode, referenceNode) {
-    this._q.push([INSERT_AFTER, parentNode, newNode, referenceNode]);
+Queue.prototype.insertBefore = function(parentElement, newElement, referenceElement) {
+    this._q.push([INSERT_BEFORE, parentElement, newElement, referenceElement]);
 }
 
-Queue.prototype.insertNodeAfter = function(referenceNode, newNode) {
-    this._q.push([INSERT_NODE_AFTER, referenceNode, newNode]);
+Queue.prototype.insertAfter = function(parentElement, newElement, referenceElement) {
+    this._q.push([INSERT_AFTER, parentElement, newElement, referenceElement]);
 }
 
-Queue.prototype.removeChild = function(parentNode, childNode) {
-    this._q.push([REMOVE_CHILD, parentNode, childNode]);
-}
-
-Queue.prototype.removeNode = function(childNode) {
-    this._q.push([REMOVE_NODE, childNode]);
+Queue.prototype.removeChild = function(el, childElement) {
+    this._q.push([REMOVE_CHILD, el, childElement]);
 }
 
 Queue.prototype.replaceChild = function(parentNode, newChild, oldChild) {
     this._q.push([REPLACE_CHILD, parentNode, newChild, oldChild]);
 }
 
-Queue.prototype.replaceNode = function(childNode, replacementNode) {
-    this._q.push([REPLACE_NODE, childNode, replacementNode]);
+Queue.prototype.before = function(referenceNode, newNode) {
+    this._q.push([BEFORE, referenceNode, newNode]);
 }
 
-//
-// Content
-
-Queue.prototype.setText = function(el, textContent) {
-    this._q.push([SET_TEXT, el, textContent]);
+Queue.prototype.after = function(referenceNode, newNode) {
+    this._q.push([AFTER, referenceNode, newNode]);
 }
 
-Queue.prototype.setHTML = function(el, htmlContent) {
-    this._q.push([SET_HTML, el, htmlContent]);
+Queue.prototype.replace = function(oldNode, newNode) {
+    this._q.push([REPLACE, oldNode, newNode]);
 }
 
-//
-// Call
+Queue.prototype.remove = function(el) {
+    this._q.push([REMOVE, el]);
+}
+
+Queue.prototype.append = function(el, content) {
+    this._q.push([APPEND, el, content]);
+}
+
+Queue.prototype.clear = function(el) {
+    this._q.push([CLEAR, el]);
+}
+
+Queue.prototype.content = function(el, content) {
+    this._q.push([CONTENT, el, content]);
+}
+
+Queue.prototype.text = function(el, text) {
+    this._q.push([SET_TEXT, el, text]);
+}
 
 Queue.prototype.call = function(fn) {
     this._q.push([CALL, fn]);
 }
 
-//
-// After
 
-Queue.prototype.after = function(fn) {
-    this._q.after(fn);
+},{"domutil":10,"raf-q":11}],2:[function(require,module,exports){
+var AsyncQueue = require('./async');
+var SyncQueue = require('./sync');
+
+exports.batch = function() {
+    return new AsyncQueue();
 }
-},{"domutil":9,"raf-q":10}],2:[function(require,module,exports){
+
+exports.immediate = function() {
+    return new SyncQueue();
+}
+
+},{"./async":1,"./sync":12}],3:[function(require,module,exports){
 if (typeof window.DOMTokenList === 'undefined') {
 
 	// Constants from jQuery
@@ -273,7 +305,7 @@ if (typeof window.DOMTokenList === 'undefined') {
 
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var matchesSelector = require('./matches_selector').matchesSelector;
 
 var bind = null, unbind = null;
@@ -369,7 +401,7 @@ exports.delegate = delegate;
 exports.bind_c = bind_c;
 exports.delegate_c = delegate_c;
 exports.stop = stop;
-},{"./matches_selector":5}],4:[function(require,module,exports){
+},{"./matches_selector":6}],5:[function(require,module,exports){
 exports.setRect = function(el, x, y, width, height) {
 	el.style.left = x + 'px';
     el.style.top = y + 'px';
@@ -386,7 +418,7 @@ exports.setSize = function(el, width, height) {
     el.style.width = width + 'px';
     el.style.height = height + 'px';
 }
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var proto = window.Element.prototype;
 var nativeMatch = proto.webkitMatchesSelector
 					|| proto.mozMatchesSelector
@@ -410,7 +442,7 @@ if (nativeMatch) {
 
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 exports.isElement = function(el) {
 	return el && el.nodeType === 1;
 }
@@ -418,7 +450,7 @@ exports.isElement = function(el) {
 exports.replace = function(oldEl, newEl) {
 	oldEl.parentNode.replaceChild(newEl, oldEl);
 }
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 if ('textContent' in document.createElement('span')) {
     
     exports.getText = function(el) {
@@ -440,7 +472,7 @@ if ('textContent' in document.createElement('span')) {
     }
 
 }
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // http://stackoverflow.com/questions/1248081/get-the-browser-viewport-dimensions-with-javascript
 exports.viewportSize = function() {
 	return {
@@ -448,7 +480,7 @@ exports.viewportSize = function() {
 	    height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
 	};
 }
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var du = module.exports = {};
 
 extend(require('./impl/classes'));
@@ -465,7 +497,7 @@ function extend(things) {
     }
 }
 
-},{"./impl/classes":2,"./impl/events":3,"./impl/layout":4,"./impl/matches_selector":5,"./impl/node":6,"./impl/text":7,"./impl/viewport":8}],10:[function(require,module,exports){
+},{"./impl/classes":3,"./impl/events":4,"./impl/layout":5,"./impl/matches_selector":6,"./impl/node":7,"./impl/text":8,"./impl/viewport":9}],11:[function(require,module,exports){
 module.exports = function(exec) {
     return new Queue(exec);
 }
@@ -517,5 +549,106 @@ Queue.prototype.after = function(cb) {
         this._timer = raf(this._drainMethod);
     }
 }
-},{}]},{},[1])(1)
+},{}],12:[function(require,module,exports){
+var du = require('domutil');
+var style = du.style;
+var addClass = du.addClass;
+var removeClass = du.removeClass;
+var toggleClass = du.toggleClass;
+var removeMatchingClasses = du.removeMatchingClasses;
+var append = du.append;
+var clear = du.clear;
+var content = du.content;
+var text = du.text;
+
+module.exports = Queue;
+function Queue() {
+}
+
+Queue.prototype.setAttribute = function(el, attr, value) {
+    el.setAttribute(attr, value);
+}
+
+Queue.prototype.removeAttribute = function(el, attr) {
+    el.removeAttribute(attr);
+}
+
+Queue.prototype.style = function(el, attribute, value) {
+    style(el, attribute, value);
+}
+
+Queue.prototype.addClass = function(el, classes) {
+    addClass(el, classes);
+}
+
+Queue.prototype.removeClass = function(el, classes) {
+    removeClass(el, classes);
+}
+
+Queue.prototype.toggleClass = function(el, classes) {
+    toggleClass(el, classes);
+}
+
+Queue.prototype.removeMatchingClasses = function(el, regexp) {
+    removeMatchingClasses(el, regexp);
+}
+
+Queue.prototype.appendChild = function(el, newChild) {
+    el.appendChild(newChild);
+}
+
+Queue.prototype.insertBefore = function(parentElement, newElement, referenceElement) {
+    parentElement.insertBefore(newElement, referenceElement);
+}
+
+Queue.prototype.insertAfter = function(parentElement, newElement, referenceElement) {
+    parentElement.insertBefore(newElement, referenceElement.nextSibling);
+}
+
+Queue.prototype.removeChild = function(el, childElement) {
+    el.removeChild(childElement);
+}
+
+Queue.prototype.replaceChild = function(parentNode, newChild, oldChild) {
+    parentNode.replaceChild(newChild, oldChild);
+}
+
+Queue.prototype.before = function(referenceNode, newNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode);
+}
+
+Queue.prototype.after = function(referenceNode, newNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+Queue.prototype.replace = function(oldNode, newNode) {
+    oldNode.parentNode.replaceChild(newNode, oldNode);
+}
+
+Queue.prototype.remove = function(el) {
+    el.parentNode.removeChild(el);
+}
+
+Queue.prototype.append = function(el, content) {
+    append(el, content);
+}
+
+Queue.prototype.clear = function(el) {
+    clear(el);
+}
+
+Queue.prototype.content = function(el, content) {
+    content(el, content);
+}
+
+Queue.prototype.text = function(el, text) {
+    text(el, text);
+}
+
+Queue.prototype.call = function(fn) {
+    fn();
+}
+
+
+},{"domutil":10}]},{},[2])(2)
 });
