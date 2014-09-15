@@ -180,12 +180,12 @@ Queue.prototype.clear = function(el) {
     this._q.push([CLEAR, el]);
 }
 
-Queue.prototype.content = function(el, content) {
-    this._q.push([CONTENT, el, content]);
+Queue.prototype.content = function(el, htmlLike) {
+    this._q.push([CONTENT, el, htmlLike]);
 }
 
-Queue.prototype.text = function(el, text) {
-    this._q.push([SET_TEXT, el, text]);
+Queue.prototype.text = function(el, txt) {
+    this._q.push([SET_TEXT, el, txt]);
 }
 
 Queue.prototype.call = function(fn) {

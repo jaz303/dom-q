@@ -56,7 +56,7 @@ module.exports = {
 		},
 		impl: "toggleClass({{el}}, {{classes}});"
 	},
-	
+
 	removeMatchingClasses: {
 		id: 'REMOVE_MATCHING_CLASSES',
 		args: ['el', 'regexp'],
@@ -146,11 +146,11 @@ module.exports = {
 
 	content: {
 		id: 'CONTENT',
-		args: ['el', 'content'],
+		args: ['el', 'htmlLike'],
 		du: {
 			content: "content"
 		},
-		impl: "content({{el}}, {{content}});"
+		impl: "content({{el}}, {{htmlLike}});"
 	},
 
 	//
@@ -158,11 +158,11 @@ module.exports = {
 
 	text: {
 		id: 'SET_TEXT',
-		args: ['el', 'text'],
+		args: ['el', 'txt'],
 		du: {
 			text: "text"
 		},
-		impl: "text({{el}}, {{text}});"
+		impl: "text({{el}}, {{txt}});"
 	},
 
 	//

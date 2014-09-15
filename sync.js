@@ -87,12 +87,12 @@ Queue.prototype.clear = function(el) {
     clear(el);
 }
 
-Queue.prototype.content = function(el, content) {
-    content(el, content);
+Queue.prototype.content = function(el, htmlLike) {
+    content(el, htmlLike);
 }
 
-Queue.prototype.text = function(el, text) {
-    text(el, text);
+Queue.prototype.text = function(el, txt) {
+    text(el, txt);
 }
 
 Queue.prototype.call = function(fn) {

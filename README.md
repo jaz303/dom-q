@@ -32,57 +32,85 @@ Create a new "queue" that exposes the same batching API as `domq.batch()`, but i
 
 See below for the available queue operations.
 
+### Attributes
+
 #### `q.setAttribute(el, attribute, value)`
 
 #### `q.removeAttribute(el, attribute)`
 
-#### `q.addClass(el, classNames)`
+### Style
 
-`classNames` may contain multiple, space-separated class names.
+#### `q.style(el, attribute, value)`
 
-#### `q.removeClass(el, classNames)`
+#### `q.style(el, attributes)`
 
-`classNames` may contain multiple, space-separated class names.
+### Classes
 
-#### `q.toggleClass(el, classNames)`
+#### `q.addClass(el, classes)`
 
-`classNames` may contain multiple, space-separated class names.
+`classes` may contain multiple, space-separated class names.
+
+#### `q.removeClass(el, classes)`
+
+`classes` may contain multiple, space-separated class names.
+
+#### `q.toggleClass(el, classes)`
+
+`classes` may contain multiple, space-separated class names.
+
+### Native DOM interface
 
 #### `q.appendChild(parentNode, childNode)`
 
 #### `q.insertBefore(parentNode, newNode, referenceNode)`
 
-#### `q.insertNodeBefore(referenceNode, newNode)`
-
-Convenience method; equivalent to `q.insertBefore(referenceNode.parentNode, newNode, referenceNode)`.
-
 #### `q.insertAfter(parentNode, newNode, referenceAfter)`
-
-#### `q.insertNodeAfter(referenceNode, newNode)`
-
-Convenience method; equivalent to `q.insertAfter(referenceNode.parentNode, newNode, referenceNode)`.
 
 #### `q.removeChild(parentNode, childNode)`
 
-#### `q.removeNode(childNode)`
-
-Convenience method; equivalent to `q.removeChild(childNode.parentNode, childNode)`.
-
 #### `q.replaceChild(parentNode, newChild, oldChild)`
 
-#### `q.replaceNode(childNode, replacementNode)`
+### Sugared DOM interface
+
+#### `q.before(referenceNode, newNode)`
+
+Convenience method; equivalent to `q.insertBefore(referenceNode.parentNode, newNode, referenceNode)`.
+
+#### `q.after(referenceNode, newNode)`
+
+Convenience method; equivalent to `q.insertAfter(referenceNode.parentNode, newNode, referenceNode)`.
+
+#### `q.replace(childNode, replacementNode)`
 
 Convenience method; equivalent to `q.replaceChild(childNode.parentNode, replacementNode, childNode)`.
 
-#### `q.setText(el, textContent)`
+#### `q.remove(childNode)`
 
-#### `q.setHTML(el, htmlContent)`
+Convenience method; equivalent to `q.removeChild(childNode.parentNode, childNode)`.
+
+#### `q.append(el, content)`
+
+Append `content` to `el`. Content can be a DOM node, `DocumentFragment`, HTML/text strings, or an array of the above.
+
+#### `q.clear(el, htmlContent)`
+
+Remove all child nodes of `el`.
+
+#### `q.content(el, htmlContent)`
+
+Set `content` of `el` to `htmlContent`. Equivalent to `clear` followed by `append`, and as such accepts the same argument types.
+
+### Text
+
+#### `q.text(el, textContent)`
+
+### Other
 
 #### `q.call(fn)`
 
 Insert an arbitrary function into the queue; will be called in the course of normal queue processing.
 
-#### `q.after(fn)`
+#### `q.afterFlush(fn)`
 
 Insert an arbitrary function into the queue; will be called after the next batch of operations has been completely processed.
 

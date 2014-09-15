@@ -17,6 +17,23 @@ test("remove attribute", function(assert, q, el) {
     });
 });
 
+test("set style", function(assert, q, el) {
+    q.style(el, 'backgroundColor', 'red');
+    q.call(function() {
+        assert.ok(el.style.backgroundColor === 'red');
+        assert.end();
+    })
+});
+
+test("set styles", function(assert, q, el) {
+    q.style(el, {backgroundColor: 'red', color: 'blue'});
+    q.call(function() {
+        assert.ok(el.style.backgroundColor === 'red');
+        assert.ok(el.style.color === 'blue');
+        assert.end();
+    })
+});
+
 test("add class", function(assert, q, el) {
     el.className = 'leopard'
     q.addClass(el, 'bleem');
@@ -66,18 +83,6 @@ test("insert before", function(assert, q, el) {
     });
 });
 
-test("insert node before", function(assert, q, el) {
-    var ref = document.createElement('div');
-    var other = document.createElement('div');
-    el.appendChild(ref);
-    q.insertNodeBefore(ref, other);
-    q.call(function() {
-        assert.ok(el.childNodes.length === 2);
-        assert.ok(ref.previousSibling === other);
-        assert.end();
-    });
-});
-
 test("insert after", function(assert, q, el) {
     var ref = document.createElement('div');
     var other = document.createElement('div');
@@ -90,33 +95,10 @@ test("insert after", function(assert, q, el) {
     });
 });
 
-test("insert after", function(assert, q, el) {
-    var ref = document.createElement('div');
-    var other = document.createElement('div');
-    el.appendChild(ref);
-    q.insertNodeAfter(ref, other);
-    q.call(function() {
-        assert.ok(el.childNodes.length === 2);
-        assert.ok(ref.nextSibling === other);
-        assert.end();
-    });
-});
-
 test("remove child", function(assert, q, el) {
     var child = document.createElement('div');
     el.appendChild(child);
     q.removeChild(el, child);
-    q.call(function() {
-        assert.ok(el.childNodes.length === 0);
-        assert.ok(!child.parentNode);
-        assert.end();
-    });
-});
-
-test("remove node", function(assert, q, el) {
-    var child = document.createElement('div');
-    el.appendChild(child);
-    q.removeNode(child);
     q.call(function() {
         assert.ok(el.childNodes.length === 0);
         assert.ok(!child.parentNode);
@@ -137,11 +119,35 @@ test("replace child", function(assert, q, el) {
     });
 });
 
-test("replace node", function(assert, q, el) {
+test("before()", function(assert, q, el) {
+    var ref = document.createElement('div');
+    var other = document.createElement('div');
+    el.appendChild(ref);
+    q.before(ref, other);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 2);
+        assert.ok(ref.previousSibling === other);
+        assert.end();
+    });
+});
+
+test("after()", function(assert, q, el) {
+    var ref = document.createElement('div');
+    var other = document.createElement('div');
+    el.appendChild(ref);
+    q.after(ref, other);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 2);
+        assert.ok(ref.nextSibling === other);
+        assert.end();
+    });
+});
+
+test("replace()", function(assert, q, el) {
     var child1 = document.createElement('div');
     var child2 = document.createElement('div');
     el.appendChild(child1);
-    q.replaceNode(child1, child2);
+    q.replace(child1, child2);
     q.call(function() {
         assert.ok(el.childNodes.length === 1);
         assert.ok(el.childNodes[0] === child2);
@@ -150,31 +156,63 @@ test("replace node", function(assert, q, el) {
     });
 });
 
-test("set text", function(assert, q, el) {
-    q.setText(el, "everything is awesome");
+test("remove()", function(assert, q, el) {
+    var child = document.createElement('div');
+    el.appendChild(child);
+    q.remove(child);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 0);
+        assert.ok(!child.parentNode);
+        assert.end();
+    });
+});
+
+test("append()", function(assert, q, el) {
+    q.append(el, ['foo', document.createElement('div')]);
+    q.call(function() {
+        assert.ok(el.childNodes.length === 2);
+        assert.end();
+    });
+});
+
+test("clear()", function(assert, q, el) {
+    el.innerHTML = "<div><b>foo</b></div>";
+    q.clear(el);
+    q.call(function() {
+        assert.ok(el.innerHTML === "");
+        assert.end();
+    });
+});
+
+test("content()", function(assert, q, el) {
+    q.content(el, "<b>boom</b>");
+    q.call(function() {
+        assert.ok(el.innerHTML === "<b>boom</b>");
+        assert.end();
+    });
+});
+
+test("text()", function(assert, q, el) {
+    q.text(el, "everything is awesome");
     q.call(function() {
         assert.ok(el.textContent === "everything is awesome");
         assert.end();
     });
 });
 
-test("set HTML", function(assert, q, el) {
-    q.setHTML(el, "<b>HELLO</b>");
-    q.call(function() {
-        assert.ok(el.innerHTML === "<b>HELLO</b>");
-        assert.end();
-    });
-});
+test("afterFlush", function(assert, q, el, async) {
 
-test("after", function(assert, q, el) {
+    q.appendChild(el, document.createElement('div'));
+    q.appendChild(el, document.createElement('div'));
+    q.appendChild(el, document.createElement('div'));
 
-    q.after(function() {
+    if (async) {
+        assert.ok(el.childNodes.length === 0);
+    }
+
+    q.afterFlush(function() {
         assert.equal(el.childNodes.length, 3);
         assert.end();
     });
-
-    q.appendChild(el, document.createElement('div'));
-    q.appendChild(el, document.createElement('div'));
-    q.appendChild(el, document.createElement('div'));
 
 });
