@@ -34,6 +34,15 @@ test("set styles", function(assert, q, el) {
     })
 });
 
+test("remove style", function(assert, q, el) {
+    el.style.backgroundColor = 'black';
+    q.removeStyle(el, 'backgroundColor');
+    q.call(function() {
+        assert.ok(!el.style.backgroundColor);
+        assert.end();
+    });
+});
+
 test("add class", function(assert, q, el) {
     el.className = 'leopard'
     q.addClass(el, 'bleem');

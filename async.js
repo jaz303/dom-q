@@ -1,5 +1,6 @@
 var du = require('domutil');
 var style = du.style;
+var removeStyle = du.removeStyle;
 var addClass = du.addClass;
 var removeClass = du.removeClass;
 var toggleClass = du.toggleClass;
@@ -21,24 +22,25 @@ Queue.prototype.afterFlush = function(cb) { this._q.after(cb); };
 var SET_ATTRIBUTE = 1;
 var REMOVE_ATTRIBUTE = 2;
 var SET_STYLE = 3;
-var ADD_CLASS = 4;
-var REMOVE_CLASS = 5;
-var TOGGLE_CLASS = 6;
-var REMOVE_MATCHING_CLASSES = 7;
-var APPEND_CHILD = 8;
-var INSERT_BEFORE = 9;
-var INSERT_AFTER = 10;
-var REMOVE_CHILD = 11;
-var REPLACE_CHILD = 12;
-var BEFORE = 13;
-var AFTER = 14;
-var REPLACE = 15;
-var REMOVE = 16;
-var APPEND = 17;
-var CLEAR = 18;
-var CONTENT = 19;
-var SET_TEXT = 20;
-var CALL = 21;
+var REMOVE_STYLE = 4;
+var ADD_CLASS = 5;
+var REMOVE_CLASS = 6;
+var TOGGLE_CLASS = 7;
+var REMOVE_MATCHING_CLASSES = 8;
+var APPEND_CHILD = 9;
+var INSERT_BEFORE = 10;
+var INSERT_AFTER = 11;
+var REMOVE_CHILD = 12;
+var REPLACE_CHILD = 13;
+var BEFORE = 14;
+var AFTER = 15;
+var REPLACE = 16;
+var REMOVE = 17;
+var APPEND = 18;
+var CLEAR = 19;
+var CONTENT = 20;
+var SET_TEXT = 21;
+var CALL = 22;
 
 function apply(op) {
     switch(op[0]) {
@@ -50,6 +52,9 @@ function apply(op) {
             break;
         case SET_STYLE:
             style(op[1], op[2], op[3]);
+            break;
+        case REMOVE_STYLE:
+            removeStyle(op[1], op[2]);
             break;
         case ADD_CLASS:
             addClass(op[1], op[2]);
@@ -118,6 +123,10 @@ Queue.prototype.removeAttribute = function(el, attr) {
 
 Queue.prototype.style = function(el, attribute, value) {
     this._q.push([SET_STYLE, el, attribute, value]);
+}
+
+Queue.prototype.removeStyle = function(el, attribute) {
+    this._q.push([REMOVE_STYLE, el, attribute]);
 }
 
 Queue.prototype.addClass = function(el, classes) {

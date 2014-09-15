@@ -1,5 +1,6 @@
 var du = require('domutil');
 var style = du.style;
+var removeStyle = du.removeStyle;
 var addClass = du.addClass;
 var removeClass = du.removeClass;
 var toggleClass = du.toggleClass;
@@ -25,6 +26,10 @@ Queue.prototype.removeAttribute = function(el, attr) {
 
 Queue.prototype.style = function(el, attribute, value) {
     style(el, attribute, value);
+}
+
+Queue.prototype.removeStyle = function(el, attribute) {
+    removeStyle(el, attribute);
 }
 
 Queue.prototype.addClass = function(el, classes) {

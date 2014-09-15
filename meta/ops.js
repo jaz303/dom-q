@@ -27,6 +27,15 @@ module.exports = {
 		impl: "style({{el}}, {{attribute}}, {{value}});"
 	},
 
+	removeStyle: {
+		id: 'REMOVE_STYLE',
+		args: ['el', 'attribute'],
+		du: {
+			removeStyle: "removeStyle"
+		},
+		impl: "removeStyle({{el}}, {{attribute}});"
+	},
+
 	//
 	// Classes
 
