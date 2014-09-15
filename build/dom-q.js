@@ -192,7 +192,7 @@ Queue.prototype.call = function(fn) {
 }
 
 
-},{"domutil":10,"raf-q":11}],2:[function(require,module,exports){
+},{"domutil":11,"raf-q":14}],2:[function(require,module,exports){
 var AsyncQueue = require('./async');
 var SyncQueue = require('./sync');
 
@@ -204,7 +204,7 @@ exports.immediate = function() {
     return new SyncQueue();
 }
 
-},{"./async":1,"./sync":12}],3:[function(require,module,exports){
+},{"./async":1,"./sync":15}],3:[function(require,module,exports){
 if (typeof window.DOMTokenList === 'undefined') {
 
 	// Constants from jQuery
@@ -305,8 +305,166 @@ if (typeof window.DOMTokenList === 'undefined') {
 
 }
 
+exports.removeMatchingClasses = function(el, regex) {
+	var out = '';
+	el.className.split(/\s+/).forEach(function(cn) {
+		if (!cn.match(regex)) {
+			if (out.length) {
+				out += ' ';
+			}
+			out += cn;
+		}
+	});
+	el.className = out;
+}
+
 },{}],4:[function(require,module,exports){
-var matchesSelector = require('./matches_selector').matchesSelector;
+module.exports = exports = require('dom-bind');
+
+exports.stop = stop;
+function stop(evt) {
+	evt.preventDefault();
+	evt.stopPropagation();
+}
+
+},{"dom-bind":12}],5:[function(require,module,exports){
+exports.setRect = function(el, x, y, width, height) {
+	el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.width = width + 'px';
+    el.style.height = height + 'px';
+}
+
+exports.setPosition = function(el, x, y) {
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+}
+
+exports.setSize = function(el, width, height) {
+    el.style.width = width + 'px';
+    el.style.height = height + 'px';
+}
+
+exports.isHidden = function(el) {
+    return el.offsetWidth <= 0 || el.offsetHeight <= 0;
+}
+
+exports.isVisible = function(el) {
+    return !(el.offsetWidth <= 0 || el.offsetHeight <= 0);
+}
+},{}],6:[function(require,module,exports){
+module.exports = require('dom-matchesselector');
+},{"dom-matchesselector":13}],7:[function(require,module,exports){
+exports.append = append;
+function append(el, content) {
+	if (Array.isArray(content)) {
+		for (var i = 0, l = content.length; i < l; ++i) {
+			append(el, content[i]);
+		}
+	} else if (typeof content === 'string') {
+		if (content.charAt(0) === '<') {
+			el.innerHTML += content;
+		} else {
+			el.appendChild(document.createTextNode(content));
+		}
+	} else {
+		el.appendChild(content);
+	}
+}
+
+exports.clear = clear;
+function clear(el) {
+	el.innerHTML = '';
+}
+
+exports.isElement = function(el) {
+	return el && el.nodeType === 1;
+}
+
+exports.replace = function(oldEl, newEl) {
+	oldEl.parentNode.replaceChild(newEl, oldEl);
+}
+
+exports.content = function(el, content) {
+	if (typeof content === 'string') {
+		el.innerHTML = content;
+	} else{
+		clear(el);
+		append(el, content);	
+	}
+}
+},{}],8:[function(require,module,exports){
+function v(val) {
+    if (typeof val === 'number') {
+        return val + 'px';
+    } else {
+        return val;
+    }
+}
+
+exports.style = function(el, attribute, value) {
+    if (typeof attribute === 'string') {
+        el.style[attribute] = v(value);
+    } else {
+        for (var k in attribute) {
+            el.style[k] = v(attribute[k]);
+        }
+    }
+}
+
+exports.removeStyle = function(el, attribute) {
+    el.style[attribute] = '';
+}
+},{}],9:[function(require,module,exports){
+if ('textContent' in document.createElement('span')) {
+    
+    exports.getText = function(el) {
+        return el.textContent;
+    }
+
+    exports.text = function(el, text) {
+        el.textContent = text;
+    }
+
+} else {
+
+    exports.getText = function(el) {
+        return el.innerText;
+    }
+
+    exports.text = function(el, text) {
+        el.innerText = text;
+    }
+
+}
+},{}],10:[function(require,module,exports){
+// http://stackoverflow.com/questions/1248081/get-the-browser-viewport-dimensions-with-javascript
+exports.viewportSize = function() {
+	return {
+	    width: Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+	    height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+	};
+}
+},{}],11:[function(require,module,exports){
+var du = module.exports = {};
+
+extend(require('./impl/classes'));
+extend(require('./impl/events'));
+extend(require('./impl/layout'));
+extend(require('./impl/matches_selector'));
+extend(require('./impl/node'));
+extend(require('./impl/style'));
+extend(require('./impl/text'));
+extend(require('./impl/viewport'));
+
+function extend(things) {
+    for (var k in things) {
+        du[k] = things[k];
+    }
+}
+
+},{"./impl/classes":3,"./impl/events":4,"./impl/layout":5,"./impl/matches_selector":6,"./impl/node":7,"./impl/style":8,"./impl/text":9,"./impl/viewport":10}],12:[function(require,module,exports){
+var matches = require('dom-matchesselector');
 
 var bind = null, unbind = null;
 
@@ -356,7 +514,7 @@ function delegate(el, evtType, selector, cb, useCapture) {
 	return bind(el, evtType, function(evt) {
 		var currTarget = evt.target;
 		while (currTarget && currTarget !== el) {
-			if (matchesSelector(selector, currTarget)) {
+			if (matches(selector, currTarget)) {
 				evt.delegateTarget = currTarget;
 				cb.call(el, evt);
 				break;
@@ -390,35 +548,12 @@ function delegate_c(el, evtType, selector, cb, useCapture) {
 	}
 }
 
-function stop(evt) {
-	evt.preventDefault();
-	evt.stopPropagation();
-}
-
 exports.bind = bind;
 exports.unbind = unbind;
 exports.delegate = delegate;
 exports.bind_c = bind_c;
 exports.delegate_c = delegate_c;
-exports.stop = stop;
-},{"./matches_selector":6}],5:[function(require,module,exports){
-exports.setRect = function(el, x, y, width, height) {
-	el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    el.style.width = width + 'px';
-    el.style.height = height + 'px';
-}
-
-exports.setPosition = function(el, x, y) {
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-}
-
-exports.setSize = function(el, width, height) {
-    el.style.width = width + 'px';
-    el.style.height = height + 'px';
-}
-},{}],6:[function(require,module,exports){
+},{"dom-matchesselector":13}],13:[function(require,module,exports){
 var proto = window.Element.prototype;
 var nativeMatch = proto.webkitMatchesSelector
 					|| proto.mozMatchesSelector
@@ -427,7 +562,7 @@ var nativeMatch = proto.webkitMatchesSelector
 
 if (nativeMatch) {
 	
-	exports.matchesSelector = function(selector, el) {
+	module.exports = function(selector, el) {
 		return nativeMatch.call(el, selector);
 	}
 
@@ -436,68 +571,13 @@ if (nativeMatch) {
 	console.warn("Warning: using slow matchesSelector()");
 	
 	var indexOf = Array.prototype.indexOf;
-	exports.matchesSelector = function(selector, el) {
+	module.exports = function(selector, el) {
 		return indexOf.call(document.querySelectorAll(selector), el) >= 0;
 	}
 
 }
 
-},{}],7:[function(require,module,exports){
-exports.isElement = function(el) {
-	return el && el.nodeType === 1;
-}
-
-exports.replace = function(oldEl, newEl) {
-	oldEl.parentNode.replaceChild(newEl, oldEl);
-}
-},{}],8:[function(require,module,exports){
-if ('textContent' in document.createElement('span')) {
-    
-    exports.getText = function(el) {
-        return el.textContent;
-    }
-
-    exports.setText = function(el, text) {
-        el.textContent = text;
-    }
-
-} else {
-
-    exports.getText = function(el) {
-        return el.innerText;
-    }
-
-    exports.setText = function(el, text) {
-        el.innerText = text;
-    }
-
-}
-},{}],9:[function(require,module,exports){
-// http://stackoverflow.com/questions/1248081/get-the-browser-viewport-dimensions-with-javascript
-exports.viewportSize = function() {
-	return {
-	    width: Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-	    height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-	};
-}
-},{}],10:[function(require,module,exports){
-var du = module.exports = {};
-
-extend(require('./impl/classes'));
-extend(require('./impl/events'));
-extend(require('./impl/layout'));
-extend(require('./impl/matches_selector'));
-extend(require('./impl/node'));
-extend(require('./impl/text'));
-extend(require('./impl/viewport'));
-
-function extend(things) {
-    for (var k in things) {
-        du[k] = things[k];
-    }
-}
-
-},{"./impl/classes":3,"./impl/events":4,"./impl/layout":5,"./impl/matches_selector":6,"./impl/node":7,"./impl/text":8,"./impl/viewport":9}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = function(exec) {
     return new Queue(exec);
 }
@@ -549,7 +629,7 @@ Queue.prototype.after = function(cb) {
         this._timer = raf(this._drainMethod);
     }
 }
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var du = require('domutil');
 var style = du.style;
 var addClass = du.addClass;
@@ -650,5 +730,5 @@ Queue.prototype.call = function(fn) {
 }
 
 
-},{"domutil":10}]},{},[2])(2)
+},{"domutil":11}]},{},[2])(2)
 });

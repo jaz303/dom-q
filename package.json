@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/jaz303/dom-q",
   "dependencies": {
-    "domutil": "~0.3.5",
+    "domutil": "^1.0.7",
     "raf-q": "^0.1.1"
   },
   "devDependencies": {
