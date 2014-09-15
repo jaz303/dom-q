@@ -12,6 +12,8 @@ ln([
 	"module.exports = Queue;",
 	"function Queue() {",
 	"}",
+	"",
+	"Queue.prototype.afterFlush = function(cb) { cb(); };",
 	""
 ]);
 

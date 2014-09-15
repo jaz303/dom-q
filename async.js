@@ -16,6 +16,8 @@ function Queue() {
     this._q = rafq(apply);
 }
 
+Queue.prototype.afterFlush = function(cb) { this._q.after(cb); };
+
 var SET_ATTRIBUTE = 1;
 var REMOVE_ATTRIBUTE = 2;
 var SET_STYLE = 3;

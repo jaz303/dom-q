@@ -15,6 +15,8 @@ ln([
 	"function Queue() {",
 	"    this._q = rafq(apply);",
 	"}",
+	"",
+	"Queue.prototype.afterFlush = function(cb) { this._q.after(cb); };",
 	""
 ]);
 

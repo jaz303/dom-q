@@ -13,6 +13,8 @@ module.exports = Queue;
 function Queue() {
 }
 
+Queue.prototype.afterFlush = function(cb) { cb(); };
+
 Queue.prototype.setAttribute = function(el, attr, value) {
     el.setAttribute(attr, value);
 }
